@@ -1,0 +1,5 @@
+create database waether default character set utf8;
+create table weekWeather (id int AUTO_INCREMENT PRIMARY key, cityName varchar(20),`date` datetime, temp varchar(11),`status` varchar(30));
+create table twoDays (id int AUTO_INCREMENT primary key, cityName varchar(20),`date` datetime, status varchar(30));
+create table rain (id int auto_increment primary key,`date` datetime, cityName varchar(20), hour varchar(10), `24hour` varchar(10) );
+create table `current`(id int auto_increment primary key, `date` datetime, cityName varchar(20), temp varchar(10));
