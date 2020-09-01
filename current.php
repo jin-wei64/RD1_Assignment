@@ -24,7 +24,7 @@ foreach ($a['records']['location']as $i) {
     $cityresult = mysqli_fetch_assoc(mysqli_query($link,$citySql));
     $cityId = $cityresult['cityId'];
     $date = $i['time']['obsTime'];
-    $temp = $i['weatherElement'][0]['elementValue'].'度';
+    $temp = $i['weatherElement'][0]['elementValue'];
     $sql = "select `date` from current where id = '$count'";
     $sqlresult = mysqli_fetch_assoc(mysqli_query($link,$sql));
     if (date('Y-m-d H:i:s',(time()-(10*60))) > $sqlresult ['date']){
