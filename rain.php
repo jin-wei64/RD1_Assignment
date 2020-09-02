@@ -18,23 +18,32 @@ $pageContent = curl_exec($ch);
 $a = json_decode($pageContent,true);
 // var_dump($a);
 $count = 1;
-foreach ($a['records']['location']as $i) {
-    $cityName=  $i['parameter'][0]['parameterValue'];
-    $date = $i['time']['obsTime'];
-    $hour = $i['weatherElement'][0]['elementValue'];
-    $oneday = $i['weatherElement'][1]['elementValue'];
-    $citySql = "select cityId from City where cityName = '$cityName';";
-    $cityresult = mysqli_fetch_assoc(mysqli_query($link,$citySql));
-    $cityId = $cityresult['cityId'];
-    // $rainSql = "insert into rain(`date`,cityId,hour,`24hour`)value('$date','$cityId','$hour','$oneday')";
-    // mysqli_query($link,$rainSql);
-    $sql = "select `date` from rain where id = '$count'";
-    $sqlresult = mysqli_fetch_assoc(mysqli_query($link,$sql));
-    if (date('Y-m-d H:i:s',(time()-(10*60))) > $sqlresult ['date']){
+$sql = "select `date` from rain where id = '1'";
+$sqlresult = mysqli_fetch_assoc(mysqli_query($link,$sql));
+if ( $a['records']['location'][0]['time']['obsTime'] >  $sqlresult ['date']){
+    echo 'update'."<br>";
+    foreach ($a['records']['location']as $i) {
+        $cityName=  $i['parameter'][0]['parameterValue'];
+        $date = $i['time']['obsTime'];
+        $hour = $i['weatherElement'][0]['elementValue'];
+        $oneday = $i['weatherElement'][1]['elementValue'];
+        $citySql = "select cityId from City where cityName = '$cityName';";
+        $cityresult = mysqli_fetch_assoc(mysqli_query($link,$citySql));
+        $cityId = $cityresult['cityId'];
         $currentSql = "update rain set `date` = '$date', hour = '$hour', `24hour` = '$oneday' where id = $count ";
         mysqli_query($link,$currentSql);
+        $count++;
     }
-    $count++;
 }
-
+if(isset($_GET["letter"])){
+    $getid = $_GET["letter"];
+    $twentyfour = "select cityId, round(avg(`24hour`),2) as `rain` FROM `rain` where cityId = $getid and `24hour`!=-999;";
+    $onehour = "select cityId, round(avg(`hour`),2) as `rain`FROM `rain` where cityId = $getid and `hour`!=-998";
+    $TF = mysqli_query($link,$twentyfour);
+    $one = mysqli_query($link,$onehour);
+    $oneRow= mysqli_fetch_assoc($one);
+    $TFRow = mysqli_fetch_assoc($TF) ;
+        echo "最近一小時雨量：".$oneRow['rain']."\t"."最近24小時雨量：".$TFRow['rain'];  
+     
+}
 ?>

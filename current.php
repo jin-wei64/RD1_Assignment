@@ -18,20 +18,35 @@ $pageContent = curl_exec($ch);
 $a = json_decode($pageContent,true);
 // var_dump($a);
 $count = 1;
-foreach ($a['records']['location']as $i) {
-    $cityName= $i['parameter'][0]['parameterValue'];
-    $citySql = "select cityId from City where cityName = '$cityName';";
-    $cityresult = mysqli_fetch_assoc(mysqli_query($link,$citySql));
-    $cityId = $cityresult['cityId'];
-    $date = $i['time']['obsTime'];
-    $temp = $i['weatherElement'][0]['elementValue'];
-    $sql = "select `date` from current where id = '$count'";
-    $sqlresult = mysqli_fetch_assoc(mysqli_query($link,$sql));
-    if (date('Y-m-d H:i:s',(time()-(10*60))) > $sqlresult ['date']){
+$sql = "select `date` from current where id = 1";
+$sqlresult = mysqli_fetch_assoc(mysqli_query($link,$sql));
+if($a['records']['location'][0]['time']['obsTime'] > $sqlresult ['date'] ){  
+    echo 'update'."<br>";
+    foreach ($a['records']['location']as $i) {
+        $cityName= $i['parameter'][0]['parameterValue'];
+        $citySql = "select cityId from City where cityName = '$cityName';";
+        $cityresult = mysqli_fetch_assoc(mysqli_query($link,$citySql));
+        $cityId = $cityresult['cityId'];
+        $date = $i['time']['obsTime'];
+        $temp = $i['weatherElement'][0]['elementValue'];
         $currentSql = "update current set `date` = '$date',temp = '$temp' where id = $count ";
         mysqli_query($link,$currentSql);
+        $count++;
     }
-    $count++;
 }
+
+if(isset($_GET['letter'])){
+    $getid = $_GET['letter'];
+    if($getid == 15 ){
+        echo "新竹市哭哭";
+    }
+    else{
+        $avgtemp = "select date_format(`date`,'%H:%i')as `date`, round(avg(temp)) as temp from `current` where cityId = $getid and temp !=-99 GROUP by `date`";
+        $row = mysqli_fetch_assoc(mysqli_query($link,$avgtemp)) ;
+        echo "最後更新時間：".$row["date"]."\t"."當前溫度：".$row["temp"];
+    }
+   
+}
+
 
 ?>
