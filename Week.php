@@ -1,23 +1,14 @@
 <?php
 header("content-type: text/html; charset=utf-8");
 require("config.php");
-// 1. 初始設定
-$ch = curl_init();
-// 2. 設定 / 調整參數
-curl_setopt($ch, CURLOPT_URL, "https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-D0047-091?Authorization=CWB-EAD35A23-4827-4F86-85CF-E4898711F30C&format=JSON&elementName=MinT,MaxT,Wx");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_HEADER, 0);
-// 3. 執行，取回 response 結果
-$pageContent = curl_exec($ch);
-
-// 4. 關閉與釋放資源
-
-//  echo htmlspecialchars($a);
-$a = json_decode($pageContent,true);
-// var_dump($a);
-$id =1; //weekWeather's id in mysql 
-$TimeSql = "select startDate from weekWeather where cityId = '1';";
+session_start();
+$TimeSql = "select startDate,endDate from weekWeather where cityId = '1';";
 $Time = mysqli_fetch_assoc(mysqli_query($link,$TimeSql)); // get oldest endDate 
+if( date('Y-m-d H:i:s') > $Time['endDate']){
+    $_SESSION["test"] ="https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-D0047-091?Authorization=CWB-EAD35A23-4827-4F86-85CF-E4898711F30C&format=JSON&elementName=MinT,MaxT,Wx";
+    require("curl.php");
+}
+$id =1; //weekWeather's id in mysql 
 $Date = $a['records']['locations'][0]['location'][0]['weatherElement'][1]['time'][0]['startTime'];
 if( $Date > $Time['startDate']){ //compare newTime and oldestTime 
     echo 'update'."<br>";
@@ -36,41 +27,42 @@ if( $Date > $Time['startDate']){ //compare newTime and oldestTime
         }        
     }   
 }
-
 if(isset($_GET["letter"])){
     $getid = $_GET["letter"];
     $sql = "select *,WEEKDAY(startDate) as weekday from weekWeather where cityId = $getid";
     $ewo = mysqli_query($link,$sql);
+    $array = [];
     while($d = mysqli_fetch_assoc($ewo) ){
-        $numer = $d['weekday'];
-        $week = "";
-        switch($numer){
+        $d['weekday'];
+        switch($d['weekday']){
             case 0 : 
-                $week = "星期一";
+                $d['weekday'] = "星期一";
             break;
             case 1 : 
-                $week = "星期二";
+                $d['weekday']= "星期二";
             break;
             case 2 : 
-                $week = "星期三";
+                $d['weekday']= "星期三";
             break;
             case 3 : 
-                $week = "星期四";
+                $d['weekday']= "星期四";
             break;
             case 4 : 
-                $week = "星期五";
+                $d['weekday'] = "星期五";
             break;
             case 5 : 
-                $week = "星期六";
+                $d['weekday']= "星期六";
             break;
             case 6 : 
-                $week = "星期日";
+                $d['weekday']= "星期日";
             break;
         }
         
-        echo $week."\t".$d["startDate"]."~".$d["endDate"]."\t".$d['status']."\t".$d["temp"]."<br>";  
+        // echo $week."\t".$d["startDate"]."~".$d["endDate"]."\t".$d['status']."\t".$d["temp"]."<br>"; 
+        
+        $array[] = $d;
     }  
+    echo json_encode($array);
 }
-
-
+    
 ?>

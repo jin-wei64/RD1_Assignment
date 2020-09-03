@@ -1,27 +1,16 @@
 <?php
+session_start();
 header("content-type: text/html; charset=utf-8");
 require("config.php");
-// 1. 初始設定
-$ch = curl_init();
-
-// 2. 設定 / 調整參數
-curl_setopt($ch, CURLOPT_URL, "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-EAD35A23-4827-4F86-85CF-E4898711F30C&format=JSON&elementName=TEMP&parameterName=CITY");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_HEADER, 0);
-
-// 3. 執行，取回 response 結果
-$pageContent = curl_exec($ch);
-
-// 4. 關閉與釋放資源
-
-//  echo htmlspecialchars($a);
-$a = json_decode($pageContent,true);
-// var_dump($a);
-$count = 1;
 $sql = "select `date` from current where id = 1";
 $sqlresult = mysqli_fetch_assoc(mysqli_query($link,$sql));
+if( date('Y-m-d H:i:s',(time()-(15*60)))>$sqlresult ['date'] ){
+    $_SESSION["test"] = "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-EAD35A23-4827-4F86-85CF-E4898711F30C&format=JSON&elementName=TEMP&parameterName=CITY";
+    require("curl.php");
+}
+$count = 1;
 if($a['records']['location'][0]['time']['obsTime'] > $sqlresult ['date'] ){  
-    echo 'update'."<br>";
+    // echo 'update'."<br>";
     foreach ($a['records']['location']as $i) {
         $cityName= $i['parameter'][0]['parameterValue'];
         $citySql = "select cityId from City where cityName = '$cityName';";
@@ -34,7 +23,6 @@ if($a['records']['location'][0]['time']['obsTime'] > $sqlresult ['date'] ){
         $count++;
     }
 }
-
 if(isset($_GET['letter'])){
     $getid = $_GET['letter'];
     if($getid == 15 ){
@@ -43,10 +31,10 @@ if(isset($_GET['letter'])){
     else{
         $avgtemp = "select date_format(`date`,'%H:%i')as `date`, round(avg(temp)) as temp from `current` where cityId = $getid and temp !=-99 GROUP by `date`";
         $row = mysqli_fetch_assoc(mysqli_query($link,$avgtemp)) ;
-        echo "最後更新時間：".$row["date"]."\t"."當前溫度：".$row["temp"];
+        // echo "最後更新時間：".$row["date"]."\t"."當前溫度：".$row["temp"];
+        echo json_encode($row);
     }
    
 }
-
-
 ?>
+

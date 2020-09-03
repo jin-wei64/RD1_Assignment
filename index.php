@@ -3,10 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>index</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 	<form method="post">
+	<div class = "container">
 		<select name="letter" id="letter">
 			<option value="1">雲林</option>
 			<option value="2">南投</option>
@@ -34,31 +38,135 @@
         <select name="php" id="php">
             <option value="Week">一週天氣</option>
             <option value="current">當前天氣</option>
-            <option value="rain">雨天</option>
+            <option value="rain">雨量累積</option>
             <option value="TwoDays">未來兩天天氣</option>
         </select>
-        
-		<input type="submit" value="OK" /> 
+	</div>
+
 	</form>
 	<a  id = "debug" ></a>
 	<script> 
+	var list = new Array();
 	$(document).ready(function(){
 		function setting(){	
             let selecterletter = $("#letter option:selected").val();
             let filename = $("#php option:selected").val();
 			let serverurl = `${filename}.php?letter=${selecterletter}`;
-			$.ajax({
-				type: "get",
-                url: serverurl
-                
-			}).then(function(e){
-                $("#debug").html(e)
-			})
+			if(filename == "Week"){
+				$.ajax({
+					type: "get",
+					url: serverurl,
+				}).then(function(e){
+					let obj = JSON.parse(e)
+					$("#th").empty();
+					$("#td").empty();
+					$("#th").append(
+						$("<th></th>").html("時間"),
+						$("<th></th>").html("星期"),
+						$("<th></th>").html("溫度"),
+						$("<th></th>").html("狀態")
+					)
+					for(let i = 0;i<14;i++){
+						$("#td").append(
+							$('<tr></tr>').append(
+								$('<td></td>').html(obj[i].startDate+"~"+obj[i].endDate),
+								$('<td></td>').html(obj[i].weekday),
+								$('<td></td>').html(obj[i].temp),
+								$('<td></td>').html(obj[i].status)
+							)
+						);
+					}
+				})
+			}
+			if(filename == "current"){
+				$.ajax({
+					type: "get",
+					url: serverurl,
+				}).then(function(e){
+					if(selecterletter == 15){
+						$("#th").empty();
+						$("#td").empty();
+						$("<th></th>").html("哭").appendTo("#th");
+					}else{
+						let obj = JSON.parse(e)
+						$("#th").empty();
+						$("#td").empty();
+						$("#th").append(
+						$("<th></th>").html("最近更新時間"),
+						$("<th></th>").html("溫度")
+					)
+						$("<td></td>").html(obj.date).appendTo("#td");
+						$("<td></td>").html(obj.temp).appendTo("#td");
+					}
+					
+				})
+			}
+			if(filename == "rain"){
+				$.ajax({
+					type: "get",
+					url: serverurl,
+				}).then(function(e){
+					let obj = JSON.parse(e)
+					$("#th").empty();
+					$("#td").empty();
+					$("#th").append(
+						$("<th></th>").html("最近更新時間"),
+						$("<th></th>").html("一小時累積雨量："),
+						$("<th></th>").html("24小時累積雨量")
+					)
+					$("#td").append(
+						$('<tr></tr>').append(
+							$('<td></td>').html(obj[1].date),
+							$('<td></td>').html(obj[0].rain),
+							$('<td></td>').html(obj[1].rain)
+						)
+					);
+				})
+			}
+			if(filename == "TwoDays"){
+				$.ajax({
+					type: "get",
+					url: serverurl,
+				}).then(function(e){
+					let obj = JSON.parse(e)
+					$("#th").empty();
+					$("#td").empty();
+					$("#th").append(
+						$("<th></th>").html("時間"),
+						$("<th></th>").html("星期"),
+						$("<th></th>").html("溫度"),
+						$("<th></th>").html("狀態")
+					)
+					for(let i = 0;i<24;i++){
+						$("#td").append(
+							$('<tr></tr>').append(
+								$('<td></td>').html(obj[i].startDate),
+								$('<td></td>').html(obj[i].weekday),
+								$('<td></td>').html(obj[i].temp+"度"),
+								$('<td></td>').html(obj[i].status)
+							)
+						);
+					}
+				})
+			}
 		}
-        $("#letter").change(setting); //觸發時重複呼叫
+        $("#letter").change(setting); 
         $("#php").change(setting); 
-        setting();
+		setting();
 	})
 	</script>
+	<div>
+		<!-- <img src ="amy_jones.jpg"> -->
+	</div>
+	<div class="container">
+	<table class="table table-striped">
+    <thead>
+      <tr id = "th">   
+      </tr>
+    </thead>
+    <tbody  id = "td" >   
+    </tbody>
+  </table>
+</div>
 </body>
 </html>
