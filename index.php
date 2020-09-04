@@ -7,20 +7,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</head>
 <style>
-        .table-box {
+        
+		.table-box {
             margin: 100px auto;
             width: 1024px;
         }
- 
-        /* 滚动条宽度 */
         ::-webkit-scrollbar {
             width: 8px;
             background-color: transparent;
-        }
- 
-        /* 滚动条颜色 */
+		}
         ::-webkit-scrollbar-thumb {
             background-color: #27314d;
         }
@@ -45,12 +41,12 @@
  
         table thead {
             color: white;
-            background-color: #38F;
+            background-color: lightgray;
         }
  
         table tbody {
             display: block;
-            width: calc(100% + 8px); /*这里的8px是滚动条的宽度*/
+            width: calc(100% + 8px);
             height: 300px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -78,49 +74,53 @@
         table tbody tr td{
             border-bottom: none;
         }
- 
-    </style>
+
+</style>
+</head>
+
 <body>
-	<form method="post">
-	<div class = "container">
+<form method="post">
+<div class="container">
+	<div >
 		<select name="letter" id="letter">
 			<option value="1">雲林</option>
 			<option value="2">南投</option>
 			<option value="3">連江</option>
-            <option value="4">台東</option>
+			<option value="4">台東</option>
 			<option value="5">金門</option>
 			<option value="6">宜蘭</option>
-            <option value="7">屏東</option>
+			<option value="7">屏東</option>
 			<option value="8">苗栗</option>
 			<option value="9">澎湖</option>
-            <option value="10">台北</option>
+			<option value="10">台北</option>
 			<option value="11">新竹縣</option>
 			<option value="12">花蓮</option>
-            <option value="13">高雄</option>
-            <option value="14">彰化</option>
+			<option value="13">高雄</option>
+			<option value="14">彰化</option>
 			<option value="15">新竹市</option>
 			<option value="16">新北</option>
-            <option value="17">基隆</option>
+			<option value="17">基隆</option>
 			<option value="18">台中</option>
 			<option value="19">台南</option>
-            <option value="20">桃園</option>
-            <option value="21">嘉義縣</option>
-            <option value="22">嘉義市</option>
+			<option value="20">桃園</option>
+			<option value="21">嘉義縣</option>
+			<option value="22">嘉義市</option>
 		</select>
-        <select name="php" id="php">
-            <option value="Week">一週天氣</option>
-            <option value="current">當前天氣</option>
-            <option value="rain">雨量累積</option>
-            <option value="TwoDays">未來兩天天氣</option>
-        </select>
+		<select name="php" id="php">
+			<option value="Week">一週天氣</option>
+			<option value="current">當前天氣</option>
+			<option value="rain">雨量累積</option>
+			<option value="TwoDays">未來兩天天氣</option>
+		</select>
 	</div>
-	</form>
 	<div class="row">
-		<div class="col-4" style="min-height: 10px">
-			<img id = "img"  style="width:450px;height:400px;">
+		<div class="col-lg-4" >
+			<img id = "img" style="width:400px;height:350px;">
 		</div>
-		<div class="col-8" style="min-height: 300px">
-			<table class="table table-striped">
+		<div class="col-md-1" >
+		</div>
+		<div class="col-lg-7" >
+			<table class=" table-striped">
 				<thead>
 					<tr id = "th">   
 					</tr>
@@ -131,7 +131,8 @@
 			</table>
 		</div>
 	</div>
-
+<div> <!--container-->	
+</form>
 	<script> 
 	
 	$(document).ready(function(){
@@ -139,13 +140,13 @@
             let selecterletter = $("#letter option:selected").val();
             let filename = $("#php option:selected").val();
 			let serverurl = `${filename}.php?letter=${selecterletter}`;
-			$('#img').attr('src', '');
+			// $('#img').attr('src', '');
 			$.ajax({
 				type: "get",
 				url:`img.php?letter=${selecterletter}`
 			}).then(function(e){
 				console.log(e);
-				$('#img').attr('src', `img/${e}`);
+				$('#img').prop('src', `img/${e}`);
 			})
 			
 			if(filename == "Week"){
@@ -194,7 +195,7 @@
 						$("#td").append(
 							$('<tr></tr>').append(
 								$('<td></td>').html(obj.temp),
-								$('<td></td>').html(obj.date),
+								$('<td></td>').html(obj.date)
 							)
 						);	
 					}
@@ -254,6 +255,11 @@
         $("#php").change(setting); 
 		setting();
 	})
+	$('.example-table tbody').slimscroll({
+            height: '160px',
+            alwaysVisible: true,
+            color: '#333'
+        })
 	</script>
 </body>
 </html>
