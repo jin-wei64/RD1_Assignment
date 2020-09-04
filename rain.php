@@ -28,8 +28,8 @@ if ( $a['records']['location'][0]['time']['obsTime'] >  $sqlresult ['date']){
 if(isset($_GET["letter"])){
     $array= [];
     $getid = $_GET["letter"];
-    $twentyfour = "select date_format(`date`,'%H:%i')as `date`,cityId, round(avg(`24hour`),2) as `rain` FROM `rain` where cityId = $getid and `24hour`>0 GROUP by `date`;";
-    $onehour = "select cityId, round(avg(`hour`),2) as `rain`FROM `rain` where cityId = $getid and `hour`>0";
+    $twentyfour = "select date_format(`date`,'%H:%i')as `date`,cityId, round(avg(`24hour`),2) as `rain` FROM `rain` where cityId = $getid and `24hour`>=0 GROUP by `date`;";
+    $onehour = "select cityId, round(avg(`hour`),2) as `rain`FROM `rain` where cityId = $getid and `hour`>=0";
     $TF = mysqli_query($link,$twentyfour);
     $one = mysqli_query($link,$onehour);
     $oneRow= mysqli_fetch_assoc($one);
